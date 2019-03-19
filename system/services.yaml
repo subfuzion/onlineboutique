@@ -1,0 +1,10 @@
+kind: Sync
+apiVersion: nomos.dev/v1alpha1
+metadata:
+  name: services
+spec:
+  groups:
+    - kinds:
+      - kind: Service
+        versions:
+        - version: v1
