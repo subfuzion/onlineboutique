@@ -1,0 +1,11 @@
+kind: Sync
+apiVersion: nomos.dev/v1alpha1
+metadata:
+  name: virtualservices
+spec:
+  groups:
+    - group: networking.istio.io
+      kinds:
+      - kind: VirtualService
+        versions:
+        - version: v1alpha3
