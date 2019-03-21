@@ -1,5 +1,5 @@
 kind: Repo
-apiVersion: nomos.dev/v1alpha1
+apiVersion: configmanagement.gke.io/v1
 metadata:
   name: repo
 spec:
