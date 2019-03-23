@@ -190,7 +190,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: gcr.io/google-samples/microservices-demo/frontend:v0.1.0
+          image: us.gcr.io/gcp-next-hipster-shop-demo/frontend:v0.1.1
           ports:
           - containerPort: 8080
           readinessProbe:
