@@ -1,0 +1,13 @@
+kind: Cluster
+apiVersion: clusterregistry.k8s.io/v1alpha1
+metadata:
+  name: csm-1
+  labels:
+    environment: csm
+---
+kind: Cluster
+apiVersion: clusterregistry.k8s.io/v1alpha1
+metadata:
+  name: istio-1
+  labels:
+    environment: istio
