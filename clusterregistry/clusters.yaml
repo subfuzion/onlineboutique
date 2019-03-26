@@ -8,13 +8,13 @@ metadata:
 kind: Cluster
 apiVersion: clusterregistry.k8s.io/v1alpha1
 metadata:
-  name: on-prem-cluster
+  name: onprem-cluster
   labels:
     environment: istio
 ---
 kind: Cluster
 apiVersion: clusterregistry.k8s.io/v1alpha1
 metadata:
-  name: aws-cluster
+  name: external-cluster
   labels:
     environment: istio
