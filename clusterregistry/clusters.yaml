@@ -1,13 +1,20 @@
 kind: Cluster
 apiVersion: clusterregistry.k8s.io/v1alpha1
 metadata:
-  name: csm-1
+  name: gke-cluster
   labels:
     environment: csm
 ---
 kind: Cluster
 apiVersion: clusterregistry.k8s.io/v1alpha1
 metadata:
-  name: istio-1
+  name: on-prem-cluster
+  labels:
+    environment: istio
+---
+kind: Cluster
+apiVersion: clusterregistry.k8s.io/v1alpha1
+metadata:
+  name: aws-cluster
   labels:
     environment: istio
