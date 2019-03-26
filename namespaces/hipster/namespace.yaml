@@ -3,4 +3,4 @@ kind: Namespace
 metadata:
   name: hipster
   labels:
-  istio-injection: enabled
+    istio-injection: enabled
