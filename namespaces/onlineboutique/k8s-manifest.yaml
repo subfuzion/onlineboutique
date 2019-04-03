@@ -193,7 +193,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: us.gcr.io/gcp-next-hipster-shop-demo/frontend:v0.1.1
+          image: us.gcr.io/gcp-next-hipster-shop-demo/frontend:v0.1.2
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -255,7 +255,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: us.gcr.io/gcp-next-hipster-shop-demo/frontend:v0.1.1
+          image: us.gcr.io/gcp-next-hipster-shop-demo/frontend:v0.1.2
           ports:
           - containerPort: 8080
           env:
