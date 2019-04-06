@@ -67,15 +67,15 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: procurementservice
+  name: shoppingcartservice
 spec:
   selector:
     matchLabels:
-      app: procurementservice
+      app: shoppingcartservice
   template:
     metadata:
       labels:
-        app: procurementservice
+        app: shoppingcartservice
     spec:
       containers:
         - name: server
@@ -114,11 +114,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: procurementservice
+  name: shoppingcartservice
 spec:
   type: ClusterIP
   selector:
-    app: procurementservice
+    app: shoppingcartservice
   ports:
   - name: grpc
     port: 5050
@@ -224,7 +224,7 @@ spec:
           - name: SHIPPING_SERVICE_ADDR
             value: "shippingservice:50051"
           - name: CHECKOUT_SERVICE_ADDR
-            value: "procurementservice:5050"
+            value: "shoppingcartservice:5050"
           - name: AD_SERVICE_ADDR
             value: "adservice:9555"
           # - name: JAEGER_SERVICE_ADDR
@@ -270,7 +270,7 @@ spec:
           - name: SHIPPING_SERVICE_ADDR
             value: "shippingservice:50051"
           - name: CHECKOUT_SERVICE_ADDR
-            value: "procurementservice:5050"
+            value: "shoppingcartservice:5050"
           - name: AD_SERVICE_ADDR
             value: "adservice:9555"
           # - name: JAEGER_SERVICE_ADDR
