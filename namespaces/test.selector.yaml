@@ -1,0 +1,8 @@
+kind: NamespaceSelector
+apiVersion: configmanagement.gke.io/v1
+metadata:
+  name: test-env
+spec:
+  selector:
+    matchLabels:
+      env: test

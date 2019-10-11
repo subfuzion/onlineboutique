@@ -32,7 +32,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/emailservice:v0.1.0
+        image: gcr.io/google-samples/microservices-demo/emailservice:v0.1.2
         ports:
         - containerPort: 8080
         readinessProbe:
@@ -67,19 +67,19 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: checkoutservice
+  name: shoppingcartservice
 spec:
   selector:
     matchLabels:
-      app: checkoutservice
+      app: shoppingcartservice
   template:
     metadata:
       labels:
-        app: checkoutservice
+        app: shoppingcartservice
     spec:
       containers:
         - name: server
-          image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.1.0
+          image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.1.2
           ports:
           - containerPort: 5050
           readinessProbe:
@@ -114,11 +114,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: checkoutservice
+  name: shoppingcartservice
 spec:
   type: ClusterIP
   selector:
-    app: checkoutservice
+    app: shoppingcartservice
   ports:
   - name: grpc
     port: 5050
@@ -140,7 +140,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.1.0
+        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.1.2
         ports:
         - containerPort: 8080
         readinessProbe:
@@ -175,10 +175,13 @@ spec:
     port: 8080
     targetPort: 8080
 ---
+#Istio
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
+  annotations:
+    configmanagement.gke.io/cluster-selector: istio
 spec:
   selector:
     matchLabels:
@@ -190,7 +193,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: gcr.io/google-samples/microservices-demo/frontend:v0.1.0
+          image: gcr.io/onlineboutique/frontend:0.1.2
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -221,7 +224,53 @@ spec:
           - name: SHIPPING_SERVICE_ADDR
             value: "shippingservice:50051"
           - name: CHECKOUT_SERVICE_ADDR
-            value: "checkoutservice:5050"
+            value: "shoppingcartservice:5050"
+          - name: AD_SERVICE_ADDR
+            value: "adservice:9555"
+          # - name: JAEGER_SERVICE_ADDR
+          #   value: "jaeger-collector:14268"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+#CSM
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  annotations:
+    configmanagement.gke.io/cluster-selector: csm
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: server
+          image: gcr.io/onlineboutique/frontend:0.1.2
+          ports:
+          - containerPort: 8080
+          env:
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "productcatalogservice:3550"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "currencyservice:7000"
+          - name: CART_SERVICE_ADDR
+            value: "cartservice:7070"
+          - name: RECOMMENDATION_SERVICE_ADDR
+            value: "recommendationservice:8080"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "shippingservice:50051"
+          - name: CHECKOUT_SERVICE_ADDR
+            value: "shoppingcartservice:5050"
           - name: AD_SERVICE_ADDR
             value: "adservice:9555"
           # - name: JAEGER_SERVICE_ADDR
@@ -276,9 +325,12 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.1.0
+        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.1.2
         ports:
         - containerPort: 50051
+        env:
+        - name: PORT
+          value: "50051"
         readinessProbe:
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:50051"]
@@ -322,7 +374,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/productcatalogservice:v0.1.0
+        image: gcr.io/onlineboutique/productcatalogservice:0.1.2
         ports:
         - containerPort: 3550
         readinessProbe:
@@ -371,7 +423,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/cartservice:v0.1.0
+        image: gcr.io/google-samples/microservices-demo/cartservice:v0.1.2
         ports:
         - containerPort: 7070
         env:
@@ -411,15 +463,53 @@ spec:
     port: 7070
     targetPort: 7070
 ---
+#CSM
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: loadgenerator
+  annotations:
+    configmanagement.gke.io/cluster-selector: csm
 spec:
   selector:
     matchLabels:
       app: loadgenerator
-  replicas: 1
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: loadgenerator
+    spec:
+      terminationGracePeriodSeconds: 5
+      restartPolicy: Always
+      containers:
+      - name: main
+        image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.1.2
+        env:
+        - name: FRONTEND_ADDR
+          value: "frontend:80"
+        - name: USERS
+          value: "50"
+        resources:
+          requests:
+            cpu: 300m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+#Istio
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgenerator
+  annotations:
+    configmanagement.gke.io/cluster-selector: istio
+spec:
+  selector:
+    matchLabels:
+      app: loadgenerator
+  replicas: 2
   template:
     metadata:
       labels:
@@ -430,9 +520,9 @@ spec:
       initContainers:
       - name: wait-frontend
         image: alpine:3.6
-        command: ['sh', '-c', 'set -x;  apk add --no-cache curl && 
-          until timeout -t 2 curl -f "http://${FRONTEND_ADDR}"; do 
-            echo "waiting for http://${FRONTEND_ADDR}"; 
+        command: ['sh', '-c', 'set -x;  apk add --no-cache curl &&
+          until timeout -t 2 curl -f "http://${FRONTEND_ADDR}"; do
+            echo "waiting for http://${FRONTEND_ADDR}";
             sleep 2;
           done;']
         env:
@@ -440,12 +530,12 @@ spec:
           value: "frontend:80"
       containers:
       - name: main
-        image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.1.0
+        image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.1.2
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
         - name: USERS
-          value: "10"
+          value: "50"
         resources:
           requests:
             cpu: 300m
@@ -470,10 +560,13 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/currencyservice:v0.1.0
+        image: gcr.io/google-samples/microservices-demo/currencyservice:v0.1.2
         ports:
         - name: grpc
           containerPort: 7000
+        env:
+        - name: PORT
+          value: "7000"
         readinessProbe:
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:7000"]
@@ -516,7 +609,7 @@ spec:
     spec:
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/shippingservice:v0.1.0
+        image: gcr.io/google-samples/microservices-demo/shippingservice:v0.1.2
         ports:
         - containerPort: 50051
         readinessProbe:
@@ -619,7 +712,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/adservice:v0.1.0
+        image: gcr.io/google-samples/microservices-demo/adservice:v0.1.2
         ports:
         - containerPort: 9555
         env:

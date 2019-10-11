@@ -1,0 +1,17 @@
+kind: ClusterSelector
+apiVersion: configmanagement.gke.io/v1
+metadata:
+  name: istio
+spec:
+  selector:
+    matchLabels:
+      environment: istio
+---
+kind: ClusterSelector
+apiVersion: configmanagement.gke.io/v1
+metadata:
+  name: csm
+spec:
+  selector:
+    matchLabels:
+      environment: csm
